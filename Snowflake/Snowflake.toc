@@ -2,7 +2,7 @@
 ## Title: Snowflake
 ## Notes: Addon for calling out your dead friends.
 ## Author: Jarwaz
-## Version: 1.1.0
+## Version: 1.2.0
 ## SavedVariables: SnowflakeMessageTable
 
 Snowflake.lua
