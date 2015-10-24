@@ -3,6 +3,6 @@
 ## Notes: Addon for calling out your dead friends.
 ## Author: Jarwaz
 ## Version: 1.2.0
-## SavedVariables: SnowflakeMessageTable
+## SavedVariables: SnowflakeMessageTable, SnowflakeChatPreferences
 
 Snowflake.lua
