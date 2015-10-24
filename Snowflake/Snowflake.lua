@@ -2,9 +2,7 @@ local Snowflake = CreateFrame('FRAME', 'Snowflake')
 
 function Snowflake:COMBAT_LOG_EVENT_UNFILTERED(timestamp, eventtype, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, dstGUID, dstName, dstFlags, dstRaidFlags, ...)
 	if eventtype == 'UNIT_DIED' and (bit.band(dstFlags,0x00000400) > 0) then
-		if SnowflakeMessageTable[dstName] ~= nil  then
-			SendChatMessage(SnowflakeMessageTable[dstName], 'YELL', self.language, nil)
-		end
+		self:UnitKilled(dstName)
 	end
 end
 
@@ -27,33 +25,58 @@ function Snowflake:ADDON_LOADED(arg1)
 end
 
 function Snowflake:SlashHandler(msg, editbox)
-	local command, name, message = msg:match("^(%S*)%s*(%S*)%s*(.-)$")
+	local command, args = msg:match("^(%S*)%s*(.-)$")
 	
-    if command == 'help' or command == '' then
-        print('Snowflake: Commands')
-        print('Snowflake: /snowflake add <name> <message>')
-        print('Snowflake: Adds an entry to yell <message> when raid member named <name> dies. Also used to change message for existing entries.')
-        print('Snowflake: /snowflake remove <name>')
-        print('Snowflake: Remove entry for player named <name>.')
-        print('Snowflake: /snowflake list')
-        print('Snowflake: List all names with their associated messages.')
+    if command == '' or command == nil then
+        self:help(args)
+    else
+        if self[command] ~= nil then
+            self[command](self, args)
+        else
+            print('Snowflake: unrecognized command "'..command..'". /snowflake help will list all commands.')
+        end
     end
-    
-	if command == 'list' then
-		for k,v in pairs(SnowflakeMessageTable) do
-			print(k..': '..v)
-		end
-		return nil
-	end
-	
-    if command == 'remove' then
-        SnowflakeMessageTable[name] = nil
-        print('Snowflake: Removed Entry for '..name)
+end
+
+function Snowflake:list(args)
+    for k,v in pairs(SnowflakeMessageTable) do
+        print(k..': '..v)
     end
+end
+
+function Snowflake:remove(args)
+    name = args
     
-    if command == 'add' then
-        SnowflakeMessageTable[name] = message
-        print('Snowflake: Added '..name..' with message "'..message..'".')
+    SnowflakeMessageTable[name] = nil
+    print('Snowflake: Removed Entry for '..name)
+end
+
+function Snowflake:add(args)
+    name, message = args:match('^(%S*)%s*(.-)$')
+
+    SnowflakeMessageTable[name] = message
+    print('Snowflake: Added '..name..' with message "'..message..'".')
+end
+
+function Snowflake:help(args)
+    print('Snowflake: Commands')
+    print('Snowflake: /snowflake help')
+    print('Snowflake: Display this message.')
+    print('Snowflake: /snowflake add <name> <message>')
+    print('Snowflake: Adds an entry to yell <message> when raid member named <name> dies. Also used to change message for existing entries.')
+    print('Snowflake: /snowflake remove <name>')
+    print('Snowflake: Remove entry for player named <name>.')
+    print('Snowflake: /snowflake list')
+    print('Snowflake: List all names with their associated messages.')
+end
+
+function Snowflake:test(args)
+    self:UnitKilled(args)
+end
+
+function Snowflake:UnitKilled(name)
+    if SnowflakeMessageTable[name] ~= nil  then
+        SendChatMessage(SnowflakeMessageTable[name], 'YELL', self.language, nil)
     end
 end
 
